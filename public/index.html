@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student ID Form | The Little Flower College</title>
+  <style>
+    /* ---------- Global Styles ---------- */
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      font-family: "Poppins", Arial, sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #f9f9f9);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* ---------- Card ---------- */
+    .card {
+      background: #fff;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 16px;
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+      padding: 28px;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---------- Heading ---------- */
+    h2 {
+      font-size: 1.5rem;
+      color: #0d47a1;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    /* ---------- Form ---------- */
+    form label {
+      display: block;
+      font-weight: 600;
+      margin-top: 14px;
+      color: #333;
+    }
+
+    form input,
+    form textarea {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 6px;
+      border: 1px solid #dcdcdc;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      transition: border 0.2s, box-shadow 0.2s;
+    }
+
+    form input:focus,
+    form textarea:focus {
+      border-color: #2196f3;
+      box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 12px;
+      background: #2196f3;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.1s;
+    }
+
+    button:hover {
+      background: #1976d2;
+      transform: scale(1.02);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    #result {
+      margin-top: 16px;
+      font-size: 0.95rem;
+      text-align: center;
+      color: #444;
+    }
+
+    a {
+      color: #1976d2;
+      text-decoration: none;
+      word-break: break-all;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 480px) {
+      .card {
+        padding: 20px;
+      }
+      h2 {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>🎓 The Little Flower College<br>Student ID Form</h2>
+    <form id="studentForm" enctype="multipart/form-data">
+      <label>Roll No</label>
+      <input name="rollNo" required />
+
+      <label>Full Name</label>
+      <input name="fullName" required />
+
+      <label>Date of Birth</label>
+      <input type="date" name="dob" required />
+
+      <label>Mobile Number</label>
+      <input type="tel" name="mobile" required pattern="[0-9]{10}" maxlength="10" />
+
+      <label>Blood Group</label>
+      <input name="bloodGroup" required />
+
+      <label>Full Residence Address</label>
+      <textarea name="address" rows="2" required></textarea>
+
+      <label>Email</label>
+      <input type="email" name="email" required />
+
+      <label>Photo</label>
+      <input type="file" name="photo" accept="image/*" required />
+
+      <button type="submit">Submit</button>
+    </form>
+    <div id="result"></div>
+  </div>
+
+  <script>
+    document.getElementById('studentForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!confirm('Are you sure you want to submit this form?')) return;
+      const form = e.target;
+      const fd = new FormData(form);
+      const result = document.getElementById('result');
+      result.textContent = '⏳ Uploading... Please wait...';
+      try {
+        const res = await fetch('/api/add-student', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.success) {
+          result.innerHTML = `✅ Submitted successfully!<br>📸 Image: <a href="${data.imageUrl}" target="_blank">${data.imageUrl}</a>`;
+          form.reset();
+        } else {
+          result.textContent = '❌ Submit failed: ' + (data.message || 'Server error');
+        }
+      } catch (err) {
+        result.textContent = '⚠️ Network or server error.';
+      }
+    });
+  </script>
+</body>
+</html>
