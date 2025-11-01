@@ -26,7 +26,7 @@
       width: 100%;
       max-width: 480px;
       border-radius: 16px;
-      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
       padding: 28px;
       animation: fadeIn 0.4s ease-in-out;
     }
@@ -38,7 +38,7 @@
 
     /* ---------- Heading ---------- */
     h2 {
-      font-size: 1.5rem;
+      font-size: 1.6rem;
       color: #0d47a1;
       text-align: center;
       margin-bottom: 20px;
@@ -70,43 +70,44 @@
       outline: none;
     }
 
-    button {
+    /* ---------- Buttons ---------- */
+    .btn {
       width: 100%;
       margin-top: 20px;
       padding: 12px;
-      background: #2196f3;
-      color: #fff;
       border: none;
       border-radius: 8px;
       font-size: 1rem;
       cursor: pointer;
-      transition: background 0.25s, transform 0.1s;
+      transition: all 0.25s;
     }
 
-    button:hover {
+    .btn-submit {
+      background: #2196f3;
+      color: #fff;
+    }
+
+    .btn-submit:hover {
       background: #1976d2;
       transform: scale(1.02);
     }
 
-    button:active {
-      transform: scale(0.98);
+    .btn-secondary {
+      background: #f1f1f1;
+      color: #333;
     }
 
+    .btn-secondary:hover {
+      background: #e0e0e0;
+      transform: scale(1.02);
+    }
+
+    /* ---------- Result ---------- */
     #result {
       margin-top: 16px;
       font-size: 0.95rem;
       text-align: center;
       color: #444;
-    }
-
-    a {
-      color: #1976d2;
-      text-decoration: none;
-      word-break: break-all;
-    }
-
-    a:hover {
-      text-decoration: underline;
     }
 
     /* ---------- Responsive ---------- */
@@ -115,7 +116,7 @@
         padding: 20px;
       }
       h2 {
-        font-size: 1.3rem;
+        font-size: 1.4rem;
       }
     }
   </style>
@@ -123,6 +124,7 @@
 <body>
   <div class="card">
     <h2>🎓 The Little Flower College<br>Student ID Form</h2>
+
     <form id="studentForm" enctype="multipart/form-data">
       <label>Roll No</label>
       <input name="rollNo" required />
@@ -148,8 +150,13 @@
       <label>Photo</label>
       <input type="file" name="photo" accept="image/*" required />
 
-      <button type="submit">Submit</button>
+      <button type="submit" class="btn btn-submit">Submit</button>
     </form>
+
+    <button class="btn btn-secondary" onclick="window.location.href='/students.html'">
+      View Students
+    </button>
+
     <div id="result"></div>
   </div>
 
@@ -165,7 +172,7 @@
         const res = await fetch('/api/add-student', { method: 'POST', body: fd });
         const data = await res.json();
         if (data.success) {
-          result.innerHTML = `✅ Submitted successfully!<br>📸 Image: <a href="${data.imageUrl}" target="_blank">${data.imageUrl}</a>`;
+          result.innerHTML = `✅ Submitted successfully!`;
           form.reset();
         } else {
           result.textContent = '❌ Submit failed: ' + (data.message || 'Server error');

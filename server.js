@@ -34,30 +34,67 @@ async function getSheets() {
   return google.sheets({ version: "v4", auth });
 }
 
-// Endpoint: accept form (multipart/form-data) with 'photo' field
+// 📘 Get all students list (Roll No + Name)
+app.get('/api/students', async (req, res) => {
+  try {
+    const sheets = await getSheets(); // ✅ FIXED: Create sheets client first
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: process.env.GOOGLE_SHEET_ID,
+      range: 'students!A:B', // Roll No and Full Name columns
+    });
+
+    const rows = response.data.values || [];
+    // Skip header row if present
+    const students = rows.slice(1).map(r => ({
+      rollNo: r[0],
+      fullName: r[1],
+    }));
+
+    res.json({ success: true, students });
+  } catch (err) {
+    console.error('Error reading sheet:', err);
+    res.status(500).json({ success: false, message: 'Failed to fetch data' });
+  }
+});
+
+// 📤 Add new student (with photo)
 app.post("/api/add-student", upload.single("photo"), async (req, res) => {
   try {
     const { rollNo, fullName, dob, mobile, bloodGroup, address, email } = req.body;
-    if (!req.file) return res.status(400).json({ success: false, message: "Photo required" });
+    if (!req.file)
+      return res.status(400).json({ success: false, message: "Photo required" });
 
-    // 1) upload image to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(req.file.path, { folder: "student_uploads" });
+    // Upload image to Cloudinary
+    const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+      folder: "student_uploads",
+    });
 
-    // remove local temp file
+    // Remove local temp file
     try { fs.unlinkSync(req.file.path); } catch (e) {}
 
-    // 2) append to Google Sheet
+    // Append to Google Sheet
     const sheets = await getSheets();
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: "students!A:H", // change Sheet1 to your tab name if needed
+      range: "students!A:H", // must match your actual sheet tab
       valueInputOption: "USER_ENTERED",
       requestBody: {
-        values: [[rollNo, fullName, dob, mobile, bloodGroup, address, email, uploadResult.secure_url]],
+        values: [
+          [
+            rollNo,
+            fullName,
+            dob,
+            mobile,
+            bloodGroup,
+            address,
+            email,
+            uploadResult.secure_url,
+          ],
+        ],
       },
     });
 
-    res.json({ success: true, message: "Saved", imageUrl: uploadResult.secure_url });
+    res.json({ success: true, message: "Saved successfully!" });
   } catch (err) {
     console.error("Error:", err);
     res.status(500).json({ success: false, message: "Server error" });
