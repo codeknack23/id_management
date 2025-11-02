@@ -35,34 +35,37 @@ async function getSheets() {
 }
 
 // 📘 Get all students list (Roll No + Name)
-app.get('/api/students', async (req, res) => {
+app.get("/api/students", async (req, res) => {
   try {
     const sheets = await getSheets(); // ✅ FIXED: Create sheets client first
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: 'students!A:B', // Roll No and Full Name columns
+      range: "students!A:B", // Roll No and Full Name columns
     });
 
     const rows = response.data.values || [];
     // Skip header row if present
-    const students = rows.slice(1).map(r => ({
+    const students = rows.slice(1).map((r) => ({
       rollNo: r[0],
       fullName: r[1],
     }));
 
     res.json({ success: true, students });
   } catch (err) {
-    console.error('Error reading sheet:', err);
-    res.status(500).json({ success: false, message: 'Failed to fetch data' });
+    console.error("Error reading sheet:", err);
+    res.status(500).json({ success: false, message: "Failed to fetch data" });
   }
 });
 
 // 📤 Add new student (with photo)
 app.post("/api/add-student", upload.single("photo"), async (req, res) => {
   try {
-    const { rollNo, fullName, dob, mobile, bloodGroup, address, email } = req.body;
+    const { rollNo, fullName, dob, mobile, bloodGroup, address, email } =
+      req.body;
     if (!req.file)
-      return res.status(400).json({ success: false, message: "Photo required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Photo required" });
 
     // Upload image to Cloudinary
     const uploadResult = await cloudinary.uploader.upload(req.file.path, {
@@ -70,7 +73,9 @@ app.post("/api/add-student", upload.single("photo"), async (req, res) => {
     });
 
     // Remove local temp file
-    try { fs.unlinkSync(req.file.path); } catch (e) {}
+    try {
+      fs.unlinkSync(req.file.path);
+    } catch (e) {}
 
     // Append to Google Sheet
     const sheets = await getSheets();
@@ -83,11 +88,11 @@ app.post("/api/add-student", upload.single("photo"), async (req, res) => {
           [
             rollNo,
             fullName,
-            dob,
             mobile,
+            email,
+            dob,
             bloodGroup,
             address,
-            email,
             uploadResult.secure_url,
           ],
         ],
