@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student ID Form | The Little Flower College</title>
   <style>
-    /* ---------- Global Styles ---------- */
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Poppins", Arial, sans-serif;
@@ -19,8 +16,6 @@
       min-height: 100vh;
       padding: 20px;
     }
-
-    /* ---------- Card ---------- */
     .card {
       background: #fff;
       width: 100%;
@@ -30,28 +25,22 @@
       padding: 28px;
       animation: fadeIn 0.4s ease-in-out;
     }
-
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
-
-    /* ---------- Heading ---------- */
     h2 {
       font-size: 1.6rem;
       color: #0d47a1;
       text-align: center;
       margin-bottom: 20px;
     }
-
-    /* ---------- Form ---------- */
     form label {
       display: block;
       font-weight: 600;
       margin-top: 14px;
       color: #333;
     }
-
     form input,
     form textarea {
       width: 100%;
@@ -62,15 +51,12 @@
       font-size: 0.95rem;
       transition: border 0.2s, box-shadow 0.2s;
     }
-
     form input:focus,
     form textarea:focus {
       border-color: #2196f3;
-      box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+      box-shadow: 0 0 0 3px rgba(33,150,243,0.15);
       outline: none;
     }
-
-    /* ---------- Buttons ---------- */
     .btn {
       width: 100%;
       margin-top: 20px;
@@ -81,43 +67,27 @@
       cursor: pointer;
       transition: all 0.25s;
     }
-
     .btn-submit {
       background: #2196f3;
       color: #fff;
     }
-
     .btn-submit:hover {
       background: #1976d2;
       transform: scale(1.02);
     }
-
     .btn-secondary {
       background: #f1f1f1;
       color: #333;
     }
-
     .btn-secondary:hover {
       background: #e0e0e0;
       transform: scale(1.02);
     }
-
-    /* ---------- Result ---------- */
     #result {
       margin-top: 16px;
       font-size: 0.95rem;
       text-align: center;
       color: #444;
-    }
-
-    /* ---------- Responsive ---------- */
-    @media (max-width: 480px) {
-      .card {
-        padding: 20px;
-      }
-      h2 {
-        font-size: 1.4rem;
-      }
     }
   </style>
 </head>
@@ -138,14 +108,14 @@
       <label>Mobile Number</label>
       <input type="tel" name="mobile" required pattern="[0-9]{10}" maxlength="10" />
 
+      <label>Email</label>
+      <input type="email" name="email" required />
+
       <label>Blood Group</label>
       <input name="bloodGroup" required />
 
       <label>Full Residence Address</label>
       <textarea name="address" rows="2" required></textarea>
-
-      <label>Email</label>
-      <input type="email" name="email" required />
 
       <label>Photo</label>
       <input type="file" name="photo" accept="image/*" required />
@@ -163,10 +133,26 @@
   <script>
     document.getElementById('studentForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (!confirm('Are you sure you want to submit this form?')) return;
       const form = e.target;
       const fd = new FormData(form);
       const result = document.getElementById('result');
+
+      // ✅ Extra Validation
+      for (const [key, value] of fd.entries()) {
+        if (!value) {
+          alert(`Please fill the ${key} field.`);
+          return;
+        }
+      }
+
+      const file = fd.get('photo');
+      if (!file || !file.type.startsWith('image/')) {
+        alert('Please upload a valid image file.');
+        return;
+      }
+
+      if (!confirm('Are you sure you want to submit this form?')) return;
+
       result.textContent = '⏳ Uploading... Please wait...';
       try {
         const res = await fetch('/api/add-student', { method: 'POST', body: fd });
@@ -177,7 +163,7 @@
         } else {
           result.textContent = '❌ Submit failed: ' + (data.message || 'Server error');
         }
-      } catch (err) {
+      } catch {
         result.textContent = '⚠️ Network or server error.';
       }
     });
