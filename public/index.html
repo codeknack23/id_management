@@ -131,42 +131,63 @@
   </div>
 
   <script>
-    document.getElementById('studentForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const form = e.target;
-      const fd = new FormData(form);
-      const result = document.getElementById('result');
+  document.getElementById('studentForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = form.querySelector('.btn-submit');
+    const result = document.getElementById('result');
 
-      // ✅ Extra Validation
-      for (const [key, value] of fd.entries()) {
-        if (!value) {
-          alert(`Please fill the ${key} field.`);
-          return;
-        }
-      }
+    // Prevent multiple clicks
+    if (submitBtn.disabled) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Submitting...';
 
-      const file = fd.get('photo');
-      if (!file || !file.type.startsWith('image/')) {
-        alert('Please upload a valid image file.');
+    const fd = new FormData(form);
+
+    // ✅ Extra Validation
+    for (const [key, value] of fd.entries()) {
+      if (!value) {
+        alert(`Please fill the ${key} field.`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Submit';
         return;
       }
+    }
 
-      if (!confirm('Are you sure you want to submit this form?')) return;
+    const file = fd.get('photo');
+    if (!file || !file.type.startsWith('image/')) {
+      alert('Please upload a valid image file.');
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit';
+      return;
+    }
 
-      result.textContent = '⏳ Uploading... Please wait...';
-      try {
-        const res = await fetch('/api/add-student', { method: 'POST', body: fd });
-        const data = await res.json();
-        if (data.success) {
-          result.innerHTML = `✅ Submitted successfully!`;
-          form.reset();
-        } else {
-          result.textContent = '❌ Submit failed: ' + (data.message || 'Server error');
-        }
-      } catch {
-        result.textContent = '⚠️ Network or server error.';
+    if (!confirm('Are you sure you want to submit this form?')) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit';
+      return;
+    }
+
+    result.textContent = '⏳ Uploading... Please wait...';
+    try {
+      const res = await fetch('/api/add-student', { method: 'POST', body: fd });
+      const data = await res.json();
+
+      if (data.success) {
+        result.innerHTML = `✅ Submitted successfully!`;
+        form.reset();
+      } else {
+        result.textContent = '❌ Submit failed: ' + (data.message || 'Server error');
       }
-    });
-  </script>
+    } catch {
+      result.textContent = '⚠️ Network or server error.';
+    }
+
+    // Re-enable button after response
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit';
+  });
+</script>
+
 </body>
 </html>
