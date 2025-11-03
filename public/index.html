@@ -31,7 +31,7 @@
     }
     h2 {
       font-size: 1.6rem;
-      color: #0d47a1;
+      color: #000000;
       text-align: center;
       margin-bottom: 20px;
     }
@@ -40,6 +40,11 @@
       font-weight: 600;
       margin-top: 14px;
       color: #333;
+    }
+    form label span {
+      color: red;
+      margin-left: 4px;
+      font-weight: bold;
     }
     form input,
     form textarea {
@@ -93,31 +98,31 @@
 </head>
 <body>
   <div class="card">
-    <h2>🎓 The Little Flower College<br>Student ID Form</h2>
+    <h2>The Little Flower College<br>Student ID Form</h2>
 
     <form id="studentForm" enctype="multipart/form-data">
-      <label>Roll No</label>
+      <label>Roll No<span>*</span></label>
       <input name="rollNo" required />
 
-      <label>Full Name</label>
+      <label>Full Name<span>*</span></label>
       <input name="fullName" required />
 
-      <label>Date of Birth</label>
+      <label>Date of Birth<span>*</span></label>
       <input type="date" name="dob" required />
 
-      <label>Mobile Number</label>
+      <label>Mobile Number<span>*</span></label>
       <input type="tel" name="mobile" required pattern="[0-9]{10}" maxlength="10" />
 
-      <label>Email</label>
+      <label>Email<span>*</span></label>
       <input type="email" name="email" required />
 
-      <label>Blood Group</label>
+      <label>Blood Group<span>*</span></label>
       <input name="bloodGroup" required />
 
-      <label>Full Residence Address</label>
+      <label>Full Residence Address<span>*</span></label>
       <textarea name="address" rows="2" required></textarea>
 
-      <label>Photo</label>
+      <label>Photo<span>*</span></label>
       <input type="file" name="photo" accept="image/*" required />
 
       <button type="submit" class="btn btn-submit">Submit</button>
@@ -187,7 +192,6 @@
     submitBtn.disabled = false;
     submitBtn.textContent = 'Submit';
   });
-</script>
-
+  </script>
 </body>
 </html>
