@@ -31,7 +31,7 @@
     }
     h2 {
       font-size: 1.6rem;
-      color: #000000;
+      color: #000;
       text-align: center;
       margin-bottom: 20px;
     }
@@ -94,6 +94,10 @@
       text-align: center;
       color: #444;
     }
+    small {
+      font-size: 0.8rem;
+      color: #666;
+    }
   </style>
 </head>
 <body>
@@ -101,8 +105,8 @@
     <h2>The Little Flower College<br>Student ID Form</h2>
 
     <form id="studentForm" enctype="multipart/form-data">
-      <label>Roll No<span>*</span></label>
-      <input name="rollNo" required />
+      <label>Roll No <small>(Optional)</small></label>
+      <input name="rollNo" placeholder="Enter if known, else leave blank" />
 
       <label>Full Name<span>*</span></label>
       <input name="fullName" required />
@@ -111,16 +115,16 @@
       <input type="date" name="dob" required />
 
       <label>Mobile Number<span>*</span></label>
-      <input type="tel" name="mobile" required pattern="[0-9]{10}" maxlength="10" />
+      <input type="tel" name="mobile" required pattern="[0-9]{10}" maxlength="10" placeholder="10-digit number" />
 
       <label>Email<span>*</span></label>
-      <input type="email" name="email" required />
+      <input type="email" name="email" required placeholder="example@gmail.com" />
 
       <label>Blood Group<span>*</span></label>
-      <input name="bloodGroup" required />
+      <input name="bloodGroup" required placeholder="e.g. B+, O-, etc." />
 
       <label>Full Residence Address<span>*</span></label>
-      <textarea name="address" rows="2" required></textarea>
+      <textarea name="address" rows="2" required placeholder="House No, Area, City, Pincode"></textarea>
 
       <label>Photo<span>*</span></label>
       <input type="file" name="photo" accept="image/*" required />
@@ -142,17 +146,17 @@
     const submitBtn = form.querySelector('.btn-submit');
     const result = document.getElementById('result');
 
-    // Prevent multiple clicks
     if (submitBtn.disabled) return;
     submitBtn.disabled = true;
     submitBtn.textContent = 'Submitting...';
 
     const fd = new FormData(form);
 
-    // ✅ Extra Validation
-    for (const [key, value] of fd.entries()) {
-      if (!value) {
-        alert(`Please fill the ${key} field.`);
+    // ✅ Validation for required fields only
+    const requiredFields = ["fullName", "dob", "mobile", "email", "bloodGroup", "address", "photo"];
+    for (const field of requiredFields) {
+      if (!fd.get(field)) {
+        alert(`Please fill the ${field} field.`);
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit';
         return;
@@ -181,6 +185,7 @@
       if (data.success) {
         result.innerHTML = `✅ Submitted successfully!`;
         form.reset();
+        alert("Form submitted successfully!");
       } else {
         result.textContent = '❌ Submit failed: ' + (data.message || 'Server error');
       }
@@ -188,7 +193,6 @@
       result.textContent = '⚠️ Network or server error.';
     }
 
-    // Re-enable button after response
     submitBtn.disabled = false;
     submitBtn.textContent = 'Submit';
   });

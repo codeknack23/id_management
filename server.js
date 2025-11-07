@@ -60,12 +60,9 @@ app.get("/api/students", async (req, res) => {
 // 📤 Add new student (with photo)
 app.post("/api/add-student", upload.single("photo"), async (req, res) => {
   try {
-    const { rollNo, fullName, dob, mobile, bloodGroup, address, email } =
-      req.body;
+    const { rollNo, fullName, dob, mobile, bloodGroup, address, email } = req.body;
     if (!req.file)
-      return res
-        .status(400)
-        .json({ success: false, message: "Photo required" });
+      return res.status(400).json({ success: false, message: "Photo required" });
 
     // Upload image to Cloudinary
     const uploadResult = await cloudinary.uploader.upload(req.file.path, {
@@ -77,16 +74,19 @@ app.post("/api/add-student", upload.single("photo"), async (req, res) => {
       fs.unlinkSync(req.file.path);
     } catch (e) {}
 
+    // ✅ If Roll No not provided → set to "Pending"
+    const finalRollNo = rollNo && rollNo.trim() !== "" ? rollNo : "Pending";
+
     // Append to Google Sheet
     const sheets = await getSheets();
     await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SHEET_ID,
-      range: "students!A:H", // must match your actual sheet tab
+      range: "students!A:H",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
           [
-            rollNo,
+            finalRollNo, // ✅ updated
             fullName,
             mobile,
             email,
@@ -105,6 +105,7 @@ app.post("/api/add-student", upload.single("photo"), async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 });
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
